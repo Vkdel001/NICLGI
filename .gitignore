@@ -1,0 +1,65 @@
+# Dependencies
+node_modules/
+backend/node_modules/
+frontend/node_modules/
+
+# Environment variables
+.env
+backend/.env
+frontend/.env
+
+# Build outputs
+backend/output_motor/
+backend/output_motor_printer/
+backend/output_renewals/
+backend/merged_motor_policies/
+backend/merged_motor_printer_policies/
+backend/merged_health_policies/
+backend/merged_health_printer_policies/
+frontend/dist/
+frontend/build/
+
+# Uploads
+backend/uploads/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+
+# QR codes (generated dynamically)
+*.png
+qr_*.png
+
+# PDF outputs (generated files)
+*.pdf
+
+# Excel files (uploaded data)
+*.xlsx
+*.xls
+
+# Package locks (optional - you can include these if you want)
+package-lock.json
+yarn.lock
