@@ -15,13 +15,18 @@ try:
     print("Using pypdf library")
 except ImportError:
     try:
-        # Fall back to PyPDF4
-        from PyPDF4 import PdfFileWriter as PdfWriter, PdfFileReader as PdfReader
-        print("Using PyPDF4 library")
-    except ImportError:
-        # Fall back to PyPDF2
-        from PyPDF2 import PdfFileWriter as PdfWriter, PdfFileReader as PdfReader
+        # Try modern PyPDF2 (3.0.0+) with correct imports
+        from PyPDF2 import PdfWriter, PdfReader
         print("Using PyPDF2 library")
+    except ImportError:
+        try:
+            # Fall back to PyPDF4
+            from PyPDF4 import PdfFileWriter as PdfWriter, PdfFileReader as PdfReader
+            print("Using PyPDF4 library")
+        except ImportError:
+            # Last resort - old PyPDF2 (should not reach here)
+            from PyPDF2 import PdfFileWriter as PdfWriter, PdfFileReader as PdfReader
+            print("Using old PyPDF2 library")
 
 def merge_motor_printer_pdfs():
     """Merge all motor insurance printer version PDFs into a single file"""
