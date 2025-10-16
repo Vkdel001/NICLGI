@@ -348,8 +348,7 @@ const HealthDashboard = ({ user, onLogout }) => {
             </p>
             <ul style={{ fontSize: '14px', color: '#6b7280', margin: 0, paddingLeft: '20px' }}>
               <li>Renewal Acceptance Form - HealthSense Plan V2 0.pdf</li>
-              <li>HEALTHSENSE _SOB - FEB 2025.pdf</li>
-              <li>HEALTHSENSE CAT COVER_SOB - FEB 2025.pdf</li>
+              <li>Annex.pdf</li>
             </ul>
           </div>
           <button 

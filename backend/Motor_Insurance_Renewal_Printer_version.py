@@ -429,13 +429,13 @@ def create_page2_kyc(c, data, qr_filename):
     
     # Customer Declaration header with blue background (adjusted for letterhead)
     c.setFillColor(colors.lightblue)
-    c.rect(side_margin, y_pos - 23, width - 2 * side_margin, 28, fill=1, stroke=1)  # Smaller height
-    c.setFillColor(colors.white)
+    c.rect(side_margin, y_pos - 25, width - 2 * side_margin, 32, fill=1, stroke=1)  # Better height and positioning
+    c.setFillColor(colors.black)  # Changed from white to black for better readability
     c.setFont("Cambria-Bold", 8.5)  # Reduced from 9 to 8.5
-    c.drawString(side_margin + 5, y_pos - 9, "CUSTOMER DECLARATION (Applicable only to existing customers having submitted KYC documents previously for this")
-    c.drawString(side_margin + 5, y_pos - 20, "specific line of business and do not have any change in their particulars)")
+    c.drawString(side_margin + 5, y_pos - 11, "CUSTOMER DECLARATION (Applicable only to existing customers having submitted KYC documents previously for this")
+    c.drawString(side_margin + 5, y_pos - 22, "specific line of business and do not have any change in their particulars)")
     c.setFillColor(colors.black)
-    y_pos -= 40  # Reduced spacing
+    y_pos -= 42  # Adjusted spacing for better balance
     
     # I/We declaration line (smaller font and adjusted margins)
     c.setFont("Cambria", 9)  # Reduced from 10 to 9
@@ -657,21 +657,40 @@ def create_page2_renewal(c, data, qr_filename):
         c.setFillColor(colors.black)
         c.setFont("Cambria-Bold", 7.5)  # Reduced from 8 to 7.5
         
-        # Wrap header text for better fit
+        # Wrap header text for better fit - CENTER ALIGNED
+        col_center = x_pos + (col_widths[i] / 2)  # Calculate center of column
+        
         if "Compulsory" in header:
-            c.drawString(x_pos + 2, y_pos - 10, "Compulsory Excess")
-            c.drawString(x_pos + 2, y_pos - 20, "(MUR)")
+            text1 = "Compulsory Excess"
+            text2 = "(MUR)"
+            text1_width = c.stringWidth(text1, "Cambria-Bold", 7.5)
+            text2_width = c.stringWidth(text2, "Cambria-Bold", 7.5)
+            c.drawString(col_center - (text1_width / 2), y_pos - 10, text1)
+            c.drawString(col_center - (text2_width / 2), y_pos - 20, text2)
         elif "Expiring" in header:
-            c.drawString(x_pos + 2, y_pos - 10, "Expiring IDV (MUR)")
-            c.drawString(x_pos + 2, y_pos - 20, "Note 2")
+            text1 = "Expiring IDV (MUR)"
+            text2 = "Note 2"
+            text1_width = c.stringWidth(text1, "Cambria-Bold", 7.5)
+            text2_width = c.stringWidth(text2, "Cambria-Bold", 7.5)
+            c.drawString(col_center - (text1_width / 2), y_pos - 10, text1)
+            c.drawString(col_center - (text2_width / 2), y_pos - 20, text2)
         elif "Proposed" in header:
-            c.drawString(x_pos + 2, y_pos - 10, "Proposed IDV (MUR)")
-            c.drawString(x_pos + 2, y_pos - 20, "Note 2")
+            text1 = "Proposed IDV (MUR)"
+            text2 = "Note 2"
+            text1_width = c.stringWidth(text1, "Cambria-Bold", 7.5)
+            text2_width = c.stringWidth(text2, "Cambria-Bold", 7.5)
+            c.drawString(col_center - (text1_width / 2), y_pos - 10, text1)
+            c.drawString(col_center - (text2_width / 2), y_pos - 20, text2)
         elif "Renewal" in header:
-            c.drawString(x_pos + 2, y_pos - 10, "Renewal Premium")
-            c.drawString(x_pos + 2, y_pos - 20, "(MUR) - Note 1")
+            text1 = "Renewal Premium"
+            text2 = "(MUR) - Note 1"
+            text1_width = c.stringWidth(text1, "Cambria-Bold", 7.5)
+            text2_width = c.stringWidth(text2, "Cambria-Bold", 7.5)
+            c.drawString(col_center - (text1_width / 2), y_pos - 10, text1)
+            c.drawString(col_center - (text2_width / 2), y_pos - 20, text2)
         else:
-            c.drawString(x_pos + 2, y_pos - 15, header)
+            text_width = c.stringWidth(header, "Cambria-Bold", 7.5)
+            c.drawString(col_center - (text_width / 2), y_pos - 15, header)
         
         c.setFillColor(colors.lightgrey)
         x_pos += col_widths[i]
@@ -752,17 +771,7 @@ def create_page2_renewal(c, data, qr_filename):
     para2.drawOn(c, side_margin, y_pos - para2.height + 9)
     y_pos -= para2.height + 12  # Reduced spacing
     
-    para3_text = "*Any outstanding balance on the expiring policy will need to be settled as at the renewal date."
-    para3 = Paragraph(para3_text, justified_style_page1)
-    para3.wrapOn(c, text_width_page1, 100)
-    para3.drawOn(c, side_margin, y_pos - para3.height + 9)
-    y_pos -= para3.height + 4  # Reduced spacing
-    
-    para4_text = "For any assistance, please feel free to contact us at the nearest branch office or your Insurance Advisor. Alternatively, you may call us on 602-3385."
-    para4 = Paragraph(para4_text, justified_style_page1)
-    para4.wrapOn(c, text_width_page1, 100)
-    para4.drawOn(c, side_margin, y_pos - para4.height + 9)
-    y_pos -= para4.height + 4  # Reduced spacing
+
     
     # Add QR code payment instruction
     para5_text = "For your convenience, you may also settle payments instantly via the MauCAS QR Code (Scan to Pay) below using any mobile banking app such as Juice, MauBank WithMe, Blink, MyT Money, or other supported applications."
@@ -802,9 +811,14 @@ def create_page2_renewal(c, data, qr_filename):
             # Center the ZwennPay logo horizontally
             zwenn_x = page_center_x - (zwenn_width / 2)
             c.drawImage(zwenn_img, zwenn_x, logo_qr_y_position - zwenn_height, width=zwenn_width, height=zwenn_height)
-            logo_qr_y_position -= zwenn_height + 2
+            logo_qr_y_position -= zwenn_height + 15  # Increased spacing from 2 to 15
         
-
+    # Add combined outstanding balance and assistance text after ZwennPay logo
+    combined_text = "*Any outstanding balance on the expiring policy will need to be settled as at the renewal date. For any assistance, please feel free to contact us at the nearest branch office or your Insurance Advisor. Alternatively, you may call us on 602-3385."
+    para_combined = Paragraph(combined_text, justified_style_page1)
+    para_combined.wrapOn(c, text_width_page1, 100)
+    para_combined.drawOn(c, side_margin, logo_qr_y_position - para_combined.height + 9)
+    logo_qr_y_position -= para_combined.height + 6
     
     y_pos = logo_qr_y_position - 3  # Reduced spacing after logo/QR stack
 

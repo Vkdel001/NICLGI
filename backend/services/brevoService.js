@@ -320,7 +320,7 @@ Important Information:
 For your convenience, you may also settle payments instantly via the QR Code included in your renewal notice using mobile banking apps.
 
 Need Help?
-Contact our Customer Service team at 602 3000 or email customerservice@nicl.mu
+Contact our Customer Service team at 602 3385 or email customerservice@nicl.mu
 
 Thank you for choosing NICL for your insurance needs.
 

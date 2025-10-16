@@ -19,8 +19,7 @@ def convert_pdf_to_images_and_merge():
     # Paths to all forms that need to be merged
     required_pdfs = [
         "Renewal Acceptance Form - HealthSense Plan V2 0.pdf",
-        "HEALTHSENSE _SOB - FEB 2025.pdf", 
-        "HEALTHSENSE CAT COVER_SOB - FEB 2025.pdf"
+        "Annex.pdf"
     ]
     
     # Check if all required PDFs exist

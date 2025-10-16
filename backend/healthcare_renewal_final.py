@@ -286,8 +286,8 @@ for index, row in df.iterrows():
         # API payload for QR generation
         payload = {
             "MerchantId": 153,
-            "SetTransactionAmount": True,
-            "TransactionAmount": str(round(total_premium)),
+            "SetTransactionAmount": False,
+            "TransactionAmount": 0,
             "SetConvenienceIndicatorTip": False,
             "ConvenienceIndicatorTip": 0,
             "SetConvenienceFeeFixed": False,
@@ -498,6 +498,10 @@ for index, row in df.iterrows():
     # Premium text
     premium_text = f"Considering a number of factors including, inter-alia, your claims history, medical inflation and prevailing market conditions, the renewal premium for the period <font name='Cambria-Bold'>{renewal_start_formatted} to {renewal_end_formatted}</font> will be <font name='Cambria-Bold'>{format_currency(total_premium)}</font> inclusive of FSC fee and other applicable fees. Should there be any major change in your claim ratio at expiry, the renewal premium may be subject to review."
     y_pos = add_paragraph(c, premium_text, styles['BodyText'], margin, y_pos, content_width)
+    
+    # Add bank transfer information paragraph
+    bank_transfer_text = "Kindly fill in the Renewal acceptance form and submit together with payment or evidence of bank transfer on any of the following Account Numbers: Maubank (143100007063), MCB (000444155708) or SBM (61030100056840) for renewal and issuance of your Policy."
+    y_pos = add_paragraph(c, bank_transfer_text, styles['BodyText'], margin, y_pos, content_width)
     
     # Add QR code and logo after the premium text
     if qr_filename and os.path.exists(qr_filename):

@@ -297,8 +297,7 @@ router.post('/attach-forms', async (req, res) => {
     // Check if required HEALTHSENSE files exist
     const requiredFiles = [
       'Renewal Acceptance Form - HealthSense Plan V2 0.pdf',
-      'HEALTHSENSE _SOB - FEB 2025.pdf',
-      'HEALTHSENSE CAT COVER_SOB - FEB 2025.pdf'
+      'Annex.pdf'
     ];
 
     for (const file of requiredFiles) {
