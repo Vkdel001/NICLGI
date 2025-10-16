@@ -48,6 +48,16 @@ except Exception as e:
 width, height = A4
 margin = 50
 
+def format_amount(amount_str):
+    """Format amount with comma delimiters and rounding"""
+    try:
+        # Remove existing commas and convert to float
+        amount = float(str(amount_str).replace(',', '').strip())
+        # Round to nearest integer and format with commas
+        return f"{int(round(amount)):,}"
+    except (ValueError, AttributeError):
+        return str(amount_str)
+
 def create_motor_renewal_pdf():
     """Create Motor Insurance Renewal Notice PDFs from Excel data"""
     
@@ -239,8 +249,8 @@ def create_motor_renewal_pdf():
                 
                 payload = {
                     "MerchantId": 155,
-                    "SetTransactionAmount": True,
-                    "TransactionAmount": str(amount),
+                    "SetTransactionAmount": False,
+                    "TransactionAmount": 0,
                     "SetConvenienceIndicatorTip": False,
                     "ConvenienceIndicatorTip": 0,
                     "SetConvenienceFeeFixed": False,
@@ -630,7 +640,13 @@ def create_page2_renewal(c, data, qr_filename):
     
     # Vehicle details table
     table_headers = ["Vehicle Description", "Compulsory Excess (MUR)", "Expiring IDV (MUR)", "Proposed IDV (MUR)", "Renewal Premium (MUR)"]
-    table_data = [data['vehicle_desc'], data['compulsory_excess'], data['idv'], data['revised_idv'], data['new_net_premium']]
+    table_data = [
+        data['vehicle_desc'], 
+        format_amount(data['compulsory_excess']), 
+        format_amount(data['idv']), 
+        format_amount(data['revised_idv']), 
+        format_amount(data['new_net_premium'])
+    ]
     
     # Draw table with proper spacing to match text justification width
     table_width = width - 2 * margin
@@ -747,7 +763,7 @@ def create_page2_renewal(c, data, qr_filename):
     para3.drawOn(c, margin, y_pos - para3.height + 9)
     y_pos -= para3.height + 5
     
-    para4_text = "For any assistance, please feel free to contact us at the nearest branch office or your Insurance Advisor. Alternatively, you may call us on 602-3385."
+    para4_text = "For any assistance, please feel free to contact us at the nearest branch office or your Insurance Advisor. Alternatively, you may call us on 602-3000."
     para4 = Paragraph(para4_text, justified_style_page1)
     para4.wrapOn(c, text_width_page1, 100)
     para4.drawOn(c, margin, y_pos - para4.height + 9)

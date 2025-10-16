@@ -247,8 +247,8 @@ def create_motor_renewal_pdf():
                 
                 payload = {
                     "MerchantId": 155,
-                    "SetTransactionAmount": True,
-                    "TransactionAmount": str(amount),
+                    "SetTransactionAmount": False,
+                    "TransactionAmount": 0,
                     "SetConvenienceIndicatorTip": False,
                     "ConvenienceIndicatorTip": 0,
                     "SetConvenienceFeeFixed": False,
@@ -814,7 +814,7 @@ def create_page2_renewal(c, data, qr_filename):
             logo_qr_y_position -= zwenn_height + 15  # Increased spacing from 2 to 15
         
     # Add combined outstanding balance and assistance text after ZwennPay logo
-    combined_text = "*Any outstanding balance on the expiring policy will need to be settled as at the renewal date. For any assistance, please feel free to contact us at the nearest branch office or your Insurance Advisor. Alternatively, you may call us on 602-3385."
+    combined_text = "*Any outstanding balance on the expiring policy will need to be settled as at the renewal date. For any assistance, please feel free to contact us at the nearest branch office or your Insurance Advisor. Alternatively, you may call us on 602-3000."
     para_combined = Paragraph(combined_text, justified_style_page1)
     para_combined.wrapOn(c, text_width_page1, 100)
     para_combined.drawOn(c, side_margin, logo_qr_y_position - para_combined.height + 9)

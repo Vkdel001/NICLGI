@@ -53,8 +53,12 @@ Thumbs.db
 *.png
 qr_*.png
 
-# PDF outputs (generated files)
+# PDF outputs (generated files) - but allow template forms
 *.pdf
+# Allow specific template form PDFs
+!backend/Annex.pdf
+!backend/Renewal*.pdf
+!backend/*Form*.pdf
 
 # Excel files (uploaded data)
 *.xlsx
