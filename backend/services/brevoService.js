@@ -52,13 +52,13 @@ try {
 const SENDER_CONFIG = {
   motor: {
     name: 'NICL Motor',
-    email: 'noreply@niclmauritius.site',
-    replyTo: 'motor@niclmauritius.site'
+    email: 'motorinsurance@niclmauritius.site',
+    replyTo: 'customerservice@nicl.mu'
   },
   health: {
     name: 'NICL Health',
     email: 'noreply@niclmauritius.site',
-    replyTo: 'health@niclmauritius.site'
+    replyTo: 'customerservice@nicl.mu'
   }
 };
 
