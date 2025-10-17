@@ -510,8 +510,8 @@ for index, row in df.iterrows():
         y_pos = add_paragraph(c, "For your convenience, you may settle payments via the QR code below using apps such as Juice or MyT Money.", styles['BoldText'], margin, y_pos, content_width)
         y_pos -= 8  # Reduced spacing
         
-        # Try to keep QR on same page - adjusted for larger QR section
-        qr_section_height = 220  # Increased to accommodate larger QR and elements
+        # Try to keep QR on same page - optimized space estimate
+        qr_section_height = 180  # Reduced from 220 to 180 for better page utilization with multi-row tables
         if y_pos < qr_section_height:
             y_pos = check_new_page(c, y_pos, qr_section_height, width, height, margin)
         
