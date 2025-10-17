@@ -42,7 +42,7 @@ except Exception as e:
 # PDF Configuration for Letterhead Printing
 width, height = A4
 # Adjusted margins for pre-printed letterhead
-top_margin = 132  # Increased to clear pre-printed header completely (132mm = 130mm + 2mm ≈ 5px)
+top_margin = 170  # Increased from 160 to 170 for better clearance from NIC logo
 bottom_margin = 50  # Increased to clear pre-printed footer (50mm)
 side_margin = 50  # Keep standard side margins
 
@@ -179,8 +179,8 @@ def create_motor_renewal_pdf():
                 policy_data['renewal_start'] = safe_get('Renewal Start')
                 policy_data['renewal_end'] = safe_get('Renewal End')
             
-            # Create vehicle description
-            vehicle_desc = f"COMPREHENSIVE COVER\n{policy_data['make']} {policy_data['model']}\n{policy_data['vehicle_no']}\n{policy_data['chassis_no']}"
+            # Create vehicle description (simplified - vehicle number only)
+            vehicle_desc = f"{policy_data['vehicle_no']}"
             policy_data['vehicle_desc'] = vehicle_desc
             
             # Generate PDF filename in output_motor folder with enhanced character cleaning
@@ -337,8 +337,9 @@ def create_motor_renewal_pdf():
 
 def create_page2_kyc(c, data, qr_filename):
     """Create Page 2 - KYC Declaration - Letterhead Version"""
-    # Start below pre-printed header area (same as page 1)
-    y_pos = height - top_margin - 15  # Adjusted for letterhead
+    # Start below pre-printed header area (Page 2 uses original margin - no logo overlap issue)
+    page2_top_margin = 132  # Page 2 uses original margin, doesn't need extra space like Page 1
+    y_pos = height - page2_top_margin - 15  # Adjusted for letterhead
     
     # Add Renewal Confirmation section at the top of page 2 (adjusted for letterhead)
     # Define table width to match text alignment (narrower than full width)
@@ -551,20 +552,8 @@ def create_page2_kyc(c, data, qr_filename):
 
 def create_page2_renewal(c, data, qr_filename):
     """Create Page 1 - Motor Insurance Renewal Notice - Letterhead Version"""
-    # Start below pre-printed header area
+    # Start below pre-printed header area (no internal header needed for letterhead)
     y_pos = height - top_margin
-    
-    # Header with custom blue background (smaller for letterhead)
-    custom_blue = colors.Color(70/255, 130/255, 180/255)  # Steel blue color similar to attachment
-    c.setFillColor(custom_blue)
-    c.rect(side_margin, y_pos - 18, width - 2 * side_margin, 22, fill=1, stroke=1)
-    c.setFillColor(colors.white)
-    c.setFont("Cambria-Bold", 11)  # Reduced from 12 to 11
-    header_text = "MOTOR INSURANCE RENEWAL NOTICE"
-    text_width = c.stringWidth(header_text, "Cambria-Bold", 11)
-    c.drawString((width - text_width) / 2, y_pos - 13, header_text)
-    c.setFillColor(colors.black)
-    y_pos -= 35  # Reduced spacing
     
     # Date (smaller font)
     c.setFont("Cambria", 9)  # Reduced from 10 to 9
@@ -572,6 +561,7 @@ def create_page2_renewal(c, data, qr_filename):
     y_pos -= 18  # Reduced spacing
     
     # Address (smaller font and spacing)
+    address_start_y = y_pos  # Store starting position for logo alignment
     c.drawString(side_margin, y_pos, data['name'])
     y_pos -= 11  # Reduced from 12 to 11
     c.drawString(side_margin, y_pos, data['address1'])
@@ -582,6 +572,23 @@ def create_page2_renewal(c, data, qr_filename):
     if data['address3']:
         c.drawString(side_margin, y_pos, data['address3'])
         y_pos -= 11
+    
+    address_end_y = y_pos  # Store end position of address block
+    
+    # Add iSphere logo in top-right area next to customer address (using healthcare method)
+    if os.path.exists("isphere_logo.jpg"):
+        from reportlab.lib.utils import ImageReader
+        isphere_img = ImageReader("isphere_logo.jpg")
+        isphere_width = 225  # Increased by 50% (150 * 1.5 = 225) for better visibility
+        isphere_height = isphere_width * (isphere_img.getSize()[1] / isphere_img.getSize()[0])
+        # Position logo so its bottom edge stays fixed at address end, grows upward and leftward
+        isphere_x = width - side_margin - isphere_width  # Right edge stays fixed
+        isphere_y = address_end_y  # Bottom edge stays fixed at address end (grows upward)
+        c.drawImage(isphere_img, isphere_x, isphere_y, width=isphere_width, height=isphere_height)
+        print(f"✅ iSphere logo added at ({isphere_x}, {isphere_y}) size {isphere_width}x{isphere_height}")
+    else:
+        print("⚠️ isphere_logo.jpg not found in backend directory")
+    
     y_pos -= 6  # Reduced from 8 to 6
     
     # Salutation - use "Dear Valued Customer" for corporate customers (when Title is blank)
@@ -601,13 +608,13 @@ def create_page2_renewal(c, data, qr_filename):
     
     if business_type == 'renewed' and data['old_policy_no'].strip():
         # Renewed policy: show both old and new policy numbers
-        subject_line = f"Re: Motor Insurance Policy No.: {data['old_policy_no']} – New Policy No.: {data['policy_no']}"
+        subject_line = f"Re: Renewal for Motor Insurance Policy No.: {data['old_policy_no']} – New Policy No.: {data['policy_no']}"
     elif business_type == 'new policy':
         # New policy: show only new policy number
-        subject_line = f"Re: Motor Insurance Policy No.: {data['policy_no']}"
+        subject_line = f"Re: Renewal for Motor Insurance Policy No.: {data['policy_no']}"
     else:
         # Default fallback: show current policy number
-        subject_line = f"Re: Motor Insurance Policy No.: {data['policy_no']}"
+        subject_line = f"Re: Renewal for Motor Insurance Policy No.: {data['policy_no']}"
     
     c.drawString(side_margin, y_pos, subject_line)
     y_pos -= 18  # Reduced spacing
@@ -643,11 +650,11 @@ def create_page2_renewal(c, data, qr_filename):
         format_amount(data['new_net_premium'])
     ]
     
-    # Draw table with proper spacing (adjusted for letterhead)
+    # Draw table with proper spacing (adjusted for letterhead and simplified vehicle description)
     table_width = width - 2 * side_margin
     col_widths = [140, 85, 85, 85, 100]  # Keep same proportions
     header_height = 28  # Reduced from 30 to 28
-    data_height = 45  # Reduced from 50 to 45
+    data_height = 25  # Reduced from 45 to 25 (single-line vehicle description)
     
     # Draw table header
     c.setFillColor(colors.lightgrey)
@@ -705,15 +712,10 @@ def create_page2_renewal(c, data, qr_filename):
         c.setFillColor(colors.black)
         c.setFont("Cambria-Bold", 8.5)  # Increased to 8.5pt for better readability
         
-        if i == 0:  # Vehicle description - multi-line
-            lines = cell_data.split('\n')
-            for j, line in enumerate(lines):
-                c.drawString(x_pos + 3, y_pos - 11 - (j * 9), line)  # Tighter spacing
-        else:
-            # Center other data
-            text_width = c.stringWidth(str(cell_data), "Cambria-Bold", 8.5)
-            text_x = x_pos + (col_widths[i] - text_width) / 2
-            c.drawString(text_x, y_pos - 23, str(cell_data))  # Adjusted position
+        # Center all data (vehicle description is now single line)
+        text_width = c.stringWidth(str(cell_data), "Cambria-Bold", 8.5)
+        text_x = x_pos + (col_widths[i] - text_width) / 2
+        c.drawString(text_x, y_pos - 15, str(cell_data))  # Centered positioning for single line
         
         c.setFillColor(colors.white)
         x_pos += col_widths[i]
@@ -756,14 +758,14 @@ def create_page2_renewal(c, data, qr_filename):
     para_note2 = Paragraph(note2_text, justified_style_page1)
     para_note2.wrapOn(c, text_width_page1 - note2_label_width, 100)
     para_note2.drawOn(c, side_margin + note2_label_width, y_pos - para_note2.height + 9)
-    y_pos -= para_note2.height + 8  # Reduced spacing
+    y_pos -= para_note2.height + 15  # Increased spacing from 8 to 15 for better separation before IDV paragraph
     
     # Additional paragraphs with justified text (adjusted margins)
     para1_text = "The Proposed IDV set above is based on a depreciation rate applied to the Expiring IDV. As client, you may wish to review the Proposed IDV and obtain the Current Market Value of the vehicle from an independent Surveyor at your own cost. As Insurer, we recommend that you insure your vehicle at its Current Market Value by taking into consideration all the factors which determine its market value including, but not limited to, its age, mileage and current condition, inclusive of all taxes and charges."
     para1 = Paragraph(para1_text, justified_style_page1)
     para1.wrapOn(c, text_width_page1, 100)
     para1.drawOn(c, side_margin, y_pos - para1.height + 9)
-    y_pos -= para1.height + 4  # Reduced spacing
+    y_pos -= para1.height + 15  # Increased spacing from 4 to 15 for breathing space between heavy paragraphs
     
     para2_text = "Should you wish to insure your vehicle under different terms, you are kindly invited to fill in the table below and to contact us within two weeks prior to expiry of the current Policy. Alternatively, kindly fill in the Renewal Confirmation section and submit the signed Renewal Notice together with payment* or evidence of bank transfer on any of the following Account Numbers: Maubank (060100056724), MCB (000444155732) or SBM (61030100056822) for renewal and issuance of your Policy."
     para2 = Paragraph(para2_text, justified_style_page1)

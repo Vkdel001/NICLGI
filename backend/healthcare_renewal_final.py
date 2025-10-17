@@ -498,6 +498,7 @@ for index, row in df.iterrows():
     # Premium text
     premium_text = f"Considering a number of factors including, inter-alia, your claims history, medical inflation and prevailing market conditions, the renewal premium for the period <font name='Cambria-Bold'>{renewal_start_formatted} to {renewal_end_formatted}</font> will be <font name='Cambria-Bold'>{format_currency(total_premium)}</font> inclusive of FSC fee and other applicable fees. Should there be any major change in your claim ratio at expiry, the renewal premium may be subject to review."
     y_pos = add_paragraph(c, premium_text, styles['BodyText'], margin, y_pos, content_width)
+    y_pos -= 10  # Added breathing space between premium text and bank transfer paragraph
     
     # Add bank transfer information paragraph
     bank_transfer_text = "Kindly fill in the Renewal acceptance form and submit together with payment or evidence of bank transfer on any of the following Account Numbers: Maubank (143100007063), MCB (000444155708) or SBM (61030100056840) for renewal and issuance of your Policy."
@@ -542,11 +543,8 @@ for index, row in df.iterrows():
         payment_box_bottom = temp_y - payment_box_padding
         payment_box_height = payment_box_top - payment_box_bottom
         
-        # Draw the payment box border (subtle gray border)
+        # Payment box positioning (border removed for cleaner appearance)
         payment_box_x = page_center_x - (payment_box_width / 2)
-        c.setStrokeColor(colors.lightgrey)
-        c.setLineWidth(1)
-        c.rect(payment_box_x, payment_box_bottom, payment_box_width, payment_box_height, stroke=1, fill=0)
         
         # Reset y_pos and add padding
         y_pos = payment_box_top - payment_box_padding
