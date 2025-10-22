@@ -2,33 +2,25 @@
 """
 Motor Insurance PDF Merger
 Combines all PDF files from output_motor folder into a single merged PDF
+Uses PyMuPDF for reliable QR code and image preservation across Windows/Ubuntu
 """
 
 import os
 import glob
+import sys
 from datetime import datetime
 
 try:
-    # Try newer pypdf first
-    from pypdf import PdfWriter, PdfReader
-    print("Using pypdf library")
+    import fitz  # PyMuPDF - reliable PDF handling that preserves QR codes
+    print("Using PyMuPDF (fitz) library - reliable image preservation")
 except ImportError:
-    try:
-        # Try modern PyPDF2 (3.0.0+) with correct imports
-        from PyPDF2 import PdfWriter, PdfReader
-        print("Using PyPDF2 library")
-    except ImportError:
-        try:
-            # Fall back to PyPDF4
-            from PyPDF4 import PdfFileWriter as PdfWriter, PdfFileReader as PdfReader
-            print("Using PyPDF4 library")
-        except ImportError:
-            # Last resort - old PyPDF2 (should not reach here)
-            from PyPDF2 import PdfFileWriter as PdfWriter, PdfFileReader as PdfReader
-            print("Using old PyPDF2 library")
+    print("❌ PyMuPDF not installed. Please install it:")
+    print("pip install PyMuPDF")
+    print("\nPyMuPDF is required for reliable QR code preservation during PDF merging.")
+    sys.exit(1)
 
 def test_pdf_files():
-    """Test individual PDF files to check if they're readable"""
+    """Test individual PDF files to check if they're readable using PyMuPDF"""
     input_folder = "output_motor"
     pdf_files = glob.glob(os.path.join(input_folder, "*.pdf"))
     
@@ -40,22 +32,24 @@ def test_pdf_files():
     
     for i, pdf_file in enumerate(pdf_files[:5], 1):  # Test first 5 files
         try:
-            with open(pdf_file, 'rb') as file:
-                pdf_reader = PdfReader(file)
-                num_pages = len(pdf_reader.pages)
-                print(f"✅ {os.path.basename(pdf_file)}: {num_pages} pages")
+            # Use PyMuPDF to test file
+            doc = fitz.open(pdf_file)
+            num_pages = doc.page_count
+            print(f"✅ {os.path.basename(pdf_file)}: {num_pages} pages")
+            
+            # Test if we can access first page
+            if num_pages > 0:
+                page = doc[0]
+                # Check if page has content (including images/QR codes)
+                page_dict = page.get_text("dict")
                 
-                # Try to read first page content
-                if num_pages > 0:
-                    first_page = pdf_reader.pages[0]
-                    # Just check if we can access the page without error
-                    _ = first_page.mediabox
+            doc.close()
                     
         except Exception as e:
             print(f"❌ {os.path.basename(pdf_file)}: Error - {str(e)}")
 
 def merge_motor_pdfs():
-    """Merge all PDFs from output_motor folder into a single PDF"""
+    """Merge all PDFs from output_motor folder into a single PDF using PyMuPDF"""
     
     # Define folders
     input_folder = "output_motor"
@@ -89,49 +83,56 @@ def merge_motor_pdfs():
     merged_filename = f"Merged_Motor_Policies_{timestamp}.pdf"
     merged_filepath = os.path.join(output_folder, merged_filename)
     
-    # Create PDF writer object
-    pdf_writer = PdfWriter()
-    total_pages = 0
-    
-    # Process each PDF file
-    for i, pdf_file in enumerate(pdf_files, 1):
-        try:
-            print(f"📖 Processing {i}/{len(pdf_files)}: {os.path.basename(pdf_file)}")
-            
-            # Open and read the PDF file
-            with open(pdf_file, 'rb') as file:
-                pdf_reader = PdfReader(file)
+    try:
+        # Create new merged document using PyMuPDF
+        merged_doc = fitz.open()
+        total_pages = 0
+        
+        # Process each PDF file
+        for i, pdf_file in enumerate(pdf_files, 1):
+            try:
+                print(f"📖 Processing {i}/{len(pdf_files)}: {os.path.basename(pdf_file)}")
+                
+                # Open source PDF with PyMuPDF
+                source_doc = fitz.open(pdf_file)
                 
                 # Check if PDF has pages
-                num_pages = len(pdf_reader.pages)
+                num_pages = source_doc.page_count
                 if num_pages == 0:
                     print(f"⚠️ Skipping {pdf_file}: No pages found")
+                    source_doc.close()
                     continue
                 
                 print(f"   📄 Adding {num_pages} pages from this PDF")
                 
-                # Add all pages from this PDF to the merged PDF
+                # Insert all pages from source PDF (preserves QR codes and all content)
                 for page_num in range(num_pages):
                     try:
-                        page = pdf_reader.pages[page_num]
-                        pdf_writer.add_page(page)
+                        merged_doc.insert_pdf(source_doc, from_page=page_num, to_page=page_num)
                         total_pages += 1
                     except Exception as page_error:
                         print(f"   ⚠️ Error adding page {page_num + 1}: {str(page_error)}")
                         continue
-                    
-        except Exception as e:
-            print(f"⚠️ Error processing {pdf_file}: {str(e)}")
-            continue
-    
-    # Write the merged PDF
-    try:
-        with open(merged_filepath, 'wb') as output_file:
-            pdf_writer.write(output_file)
+                
+                # Close source document
+                source_doc.close()
+                        
+            except Exception as e:
+                print(f"⚠️ Error processing {pdf_file}: {str(e)}")
+                continue
+        
+        # Save the merged PDF
+        merged_doc.save(merged_filepath)
+        
+        # Get final page count for verification
+        final_pages = merged_doc.page_count
+        
+        # Close merged document
+        merged_doc.close()
         
         print(f"✅ Successfully merged {len(pdf_files)} PDFs!")
         print(f"📄 Merged PDF saved as: {merged_filepath}")
-        print(f"📊 Total pages in merged PDF: {total_pages}")
+        print(f"📊 Total pages in merged PDF: {final_pages}")
         
         # Verify the output file
         if os.path.exists(merged_filepath):
@@ -139,7 +140,7 @@ def merge_motor_pdfs():
             print(f"📏 File size: {file_size:,} bytes")
         
     except Exception as e:
-        print(f"❌ Error saving merged PDF: {str(e)}")
+        print(f"❌ Error during merging: {str(e)}")
 
 if __name__ == "__main__":
     print("🔄 Starting PDF merge process...")
