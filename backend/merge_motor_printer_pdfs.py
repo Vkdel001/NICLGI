@@ -2,6 +2,7 @@
 """
 Motor Insurance Printer Version PDF Merger
 Merges individual motor insurance renewal PDFs (printer version) into a single file
+Uses PyMuPDF for reliable QR code and image preservation across Windows/Ubuntu
 """
 
 import os
@@ -10,26 +11,16 @@ import glob
 from datetime import datetime
 
 try:
-    # Try newer pypdf first
-    from pypdf import PdfWriter, PdfReader
-    print("Using pypdf library")
+    import fitz  # PyMuPDF - reliable PDF handling that preserves QR codes
+    print("Using PyMuPDF (fitz) library - reliable image preservation")
 except ImportError:
-    try:
-        # Try modern PyPDF2 (3.0.0+) with correct imports
-        from PyPDF2 import PdfWriter, PdfReader
-        print("Using PyPDF2 library")
-    except ImportError:
-        try:
-            # Fall back to PyPDF4
-            from PyPDF4 import PdfFileWriter as PdfWriter, PdfFileReader as PdfReader
-            print("Using PyPDF4 library")
-        except ImportError:
-            # Last resort - old PyPDF2 (should not reach here)
-            from PyPDF2 import PdfFileWriter as PdfWriter, PdfFileReader as PdfReader
-            print("Using old PyPDF2 library")
+    print("❌ PyMuPDF not installed. Please install it:")
+    print("pip install PyMuPDF")
+    print("\nPyMuPDF is required for reliable QR code preservation during PDF merging.")
+    sys.exit(1)
 
 def merge_motor_printer_pdfs():
-    """Merge all motor insurance printer version PDFs into a single file"""
+    """Merge all motor insurance printer version PDFs into a single file using PyMuPDF"""
     
     # Define directories
     input_dir = "output_motor_printer"
@@ -58,17 +49,25 @@ def merge_motor_printer_pdfs():
     
     print(f"📄 Found {len(pdf_files)} PDF files to merge")
     
-    # Create writer object
-    writer = PdfWriter()
-    
     try:
-        # Add each PDF to the writer
+        # Create new merged document using PyMuPDF
+        merged_doc = fitz.open()
+        
+        # Add each PDF to the merged document
         for i, pdf_file in enumerate(pdf_files, 1):
             try:
                 print(f"📎 Adding file {i}/{len(pdf_files)}: {os.path.basename(pdf_file)}")
-                reader = PdfReader(pdf_file)
-                for page in reader.pages:
-                    writer.add_page(page)
+                
+                # Open source PDF
+                source_doc = fitz.open(pdf_file)
+                
+                # Insert all pages from source PDF (preserves QR codes and all content)
+                for page_num in range(source_doc.page_count):
+                    merged_doc.insert_pdf(source_doc, from_page=page_num, to_page=page_num)
+                
+                # Close source document
+                source_doc.close()
+                
             except Exception as e:
                 print(f"⚠️ Warning: Could not add {pdf_file}: {str(e)}")
                 continue
@@ -78,12 +77,18 @@ def merge_motor_printer_pdfs():
         output_filename = f"Motor_Renewal_Printer_Merged_{timestamp}.pdf"
         output_path = os.path.join(output_dir, output_filename)
         
-        # Write merged PDF
-        with open(output_path, 'wb') as output_file:
-            writer.write(output_file)
+        # Save merged PDF
+        merged_doc.save(output_path)
+        
+        # Get final page count for verification
+        total_pages = merged_doc.page_count
+        
+        # Close merged document
+        merged_doc.close()
         
         print(f"✅ Successfully merged {len(pdf_files)} PDFs into: {output_filename}")
         print(f"📁 Output location: {output_path}")
+        print(f"📄 Total pages in merged PDF: {total_pages}")
         
         return True
         
