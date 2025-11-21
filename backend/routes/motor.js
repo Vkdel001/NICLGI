@@ -73,10 +73,10 @@ router.post('/upload-excel', motorUpload.single('file'), async (req, res) => {
         // Try a simpler approach - use Node.js to read Excel
         try {
           const XLSX = await import('xlsx');
-          const workbook = XLSX.readFile(req.file.path);
+          const workbook = XLSX.default.readFile(req.file.path);
           const sheetName = workbook.SheetNames[0];
           const worksheet = workbook.Sheets[sheetName];
-          const jsonData = XLSX.utils.sheet_to_json(worksheet);
+          const jsonData = XLSX.default.utils.sheet_to_json(worksheet);
           recordCount = jsonData.length;
           console.log(`📊 Records counted via xlsx: ${recordCount}`);
         } catch (xlsxError) {
