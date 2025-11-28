@@ -108,7 +108,7 @@ def create_motor_renewal_pdf():
                 'name': f"{safe_get('Title')} {safe_get('Firstname')} {safe_get('Surname')}".strip(),
                 'address1': safe_get('Address1'),
                 'address2': safe_get('Address2'),
-                'address3': safe_get('Address2 after Rating Category'),
+                'address3': safe_get('Address3'),
                 'designation': f"{safe_get('Title')} {safe_get('Firstname')} {safe_get('Surname')}".strip(),
                 'policy_no': safe_get('Policy No'),
                 'cover_end_dt': safe_get('Cover End Dt'),
