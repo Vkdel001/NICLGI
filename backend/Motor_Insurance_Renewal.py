@@ -247,6 +247,9 @@ def create_motor_renewal_pdf():
                 amount = safe_get('New Net Premium', '0')
                 policy_no_api = policy_data['policy_no'].replace('/', '.').replace('-', '..') if policy_data['policy_no'] else ''
                 
+                # Check if mobile number exists (not null/empty)
+                has_mobile = bool(mobile_no and str(mobile_no).strip())
+                
                 payload = {
                     "MerchantId": 155,
                     "SetTransactionAmount": False,
@@ -260,9 +263,9 @@ def create_motor_renewal_pdf():
                     "SetAdditionalBillNumber": True,
                     "AdditionalRequiredBillNumber": False,
                     "AdditionalBillNumber": str(policy_no_api),
-                    "SetAdditionalMobileNo": True,
+                    "SetAdditionalMobileNo": has_mobile,
                     "AdditionalRequiredMobileNo": False,
-                    "AdditionalMobileNo": str(mobile_no),
+                    "AdditionalMobileNo": str(mobile_no) if has_mobile else "",
                     "SetAdditionalStoreLabel": False,
                     "AdditionalRequiredStoreLabel": False,
                     "AdditionalStoreLabel": "",
