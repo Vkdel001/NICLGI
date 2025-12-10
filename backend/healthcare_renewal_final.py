@@ -45,8 +45,18 @@ except Exception as e:
 
 # Read the Excel file containing renewal data
 try:
-    df = pd.read_excel("RENEWAL_LISTING.xlsx", engine='openpyxl')
-    print(f"[OK] Excel file loaded successfully with {len(df)} rows")
+    # Check available sheets first
+    excel_file = pd.ExcelFile("RENEWAL_LISTING.xlsx")
+    print(f"[INFO] Available sheets: {excel_file.sheet_names}")
+    
+    # Read from Sheet1 if it exists, otherwise use default (first sheet)
+    if 'Sheet1' in excel_file.sheet_names:
+        df = pd.read_excel("RENEWAL_LISTING.xlsx", sheet_name='Sheet1', engine='openpyxl')
+        print(f"[OK] Reading from 'Sheet1' - loaded {len(df)} rows")
+    else:
+        df = pd.read_excel("RENEWAL_LISTING.xlsx", engine='openpyxl')
+        print(f"[OK] Reading from default sheet - loaded {len(df)} rows")
+    
     print(f"[INFO] Available columns: {list(df.columns)}")
     
     if len(df) == 0:

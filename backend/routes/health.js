@@ -70,15 +70,24 @@ router.post('/upload-excel', healthUpload.single('file'), async (req, res) => {
         console.log('❌ Uploaded file not found');
         recordCount = 0;
       } else {
-        // Try a simpler approach - use Node.js to read Excel
+        // Try a simpler approach - use Node.js to read Excel from Sheet1
         try {
           const XLSX = await import('xlsx');
-          const workbook = XLSX.readFile(req.file.path);
-          const sheetName = workbook.SheetNames[0];
+          const workbook = XLSX.default.readFile(req.file.path);
+          
+          // Look for Sheet1 specifically, fallback to first sheet if not found
+          let sheetName = 'Sheet1';
+          if (!workbook.SheetNames.includes('Sheet1')) {
+            sheetName = workbook.SheetNames[0];
+            console.log(`⚠️ Sheet1 not found, using ${sheetName} instead`);
+          } else {
+            console.log(`✅ Reading from Sheet1`);
+          }
+          
           const worksheet = workbook.Sheets[sheetName];
-          const jsonData = XLSX.utils.sheet_to_json(worksheet);
+          const jsonData = XLSX.default.utils.sheet_to_json(worksheet);
           recordCount = jsonData.length;
-          console.log(`📊 Health records counted via xlsx: ${recordCount}`);
+          console.log(`📊 Health records counted via xlsx from ${sheetName}: ${recordCount}`);
         } catch (xlsxError) {
           console.log('📊 xlsx method failed, trying Python fallback...');
           console.error('xlsx error:', xlsxError.message);
@@ -94,7 +103,18 @@ import sys
 import traceback
 
 try:
-    df = pd.read_excel('RENEWAL_LISTING.xlsx')
+    # Check available sheets first
+    excel_file = pd.ExcelFile('RENEWAL_LISTING.xlsx')
+    print(f"Available sheets: {excel_file.sheet_names}")
+    
+    # Read from Sheet1 if it exists, otherwise use default (first sheet)
+    if 'Sheet1' in excel_file.sheet_names:
+        df = pd.read_excel('RENEWAL_LISTING.xlsx', sheet_name='Sheet1')
+        print(f"Reading from Sheet1")
+    else:
+        df = pd.read_excel('RENEWAL_LISTING.xlsx')
+        print(f"Sheet1 not found, reading from default sheet")
+    
     count = len(df)
     print(f"SUCCESS:{count}")
 except Exception as e:
