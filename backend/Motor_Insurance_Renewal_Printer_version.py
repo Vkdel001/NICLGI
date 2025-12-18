@@ -237,6 +237,8 @@ def create_motor_renewal_pdf():
                     full_name = full_name_temp[:24] if len(full_name_temp) > 24 else full_name_temp
                 elif surname_part:
                     full_name = surname_part[:24] if len(surname_part) > 24 else surname_part
+                elif policy_data['firstname']:  # Use full firstname for corporate customers
+                    full_name = policy_data['firstname'][:24]
                 else:
                     full_name = ''
                 
