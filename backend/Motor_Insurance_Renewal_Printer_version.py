@@ -281,7 +281,7 @@ def create_motor_renewal_pdf():
                     "AdditionalTerminalLabel": "",
                     "SetAdditionalPurposeTransaction": True,
                     "AdditionalRequiredPurposeTransaction": False,
-                    "AdditionalPurposeTransaction": str(policy_data['nic'])
+                    "AdditionalPurposeTransaction": "Motor Insurance"
                 }
                 
                 response = requests.post(
