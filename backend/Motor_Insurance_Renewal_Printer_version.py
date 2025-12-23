@@ -122,7 +122,8 @@ def create_motor_renewal_pdf():
                 'new_net_premium': new_net_premium_raw,
                 'nic': safe_get('NIC Number'),
                 'business_type': safe_get('Business Type'),
-                'old_policy_no': safe_get('Old Policy No')
+                'old_policy_no': safe_get('Old Policy No'),
+                'motor_type': safe_get('Motor_type')
             }
             
             # Calculate renewal dates based on Cover End Dt
@@ -626,7 +627,7 @@ def create_page2_renewal(c, data, qr_filename):
     
     # Main content
     c.setFont("Cambria", 9)  # Reduced back to 9pt to save space
-    main_text = f"We wish to inform you that your PRIVATE MOTOR Insurance Policy is expiring on {data['expiry_date']}. We are pleased to invite you to renew your insurance cover for the period {data['renewal_start']} to {data['renewal_end']} on the following terms:"
+    main_text = f"We wish to inform you that your {data['motor_type']} Insurance Policy is expiring on {data['expiry_date']}. We are pleased to invite you to renew your insurance cover for the period {data['renewal_start']} to {data['renewal_end']} on the following terms:"
     
     # Create justified paragraph for main content (reduced to save space)
     justified_style_main = ParagraphStyle(
