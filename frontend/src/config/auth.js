@@ -1,6 +1,6 @@
 export const AUTH_CONFIG = {
   motor: {
-    authorizedEmails: ["sakay@nicl.mu", "vikas.khanna@zwennpay.com"],
+    authorizedEmails: ["sakay@nicl.mu", "mhosenbocus@nicl.mu", "vikas.khanna@zwennpay.com"],
     superPassword: "NICLMOTOR@2025",
     teamName: "Motor Insurance Team",
     theme: "motor-theme"
